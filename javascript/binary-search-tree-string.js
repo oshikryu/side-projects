@@ -12,7 +12,7 @@ c. with log(n) runtime
 
 function midpoint(imin, imax) {
 	var diff = imax - imin;
-	return (Math.floor(diff/2));
+	return imin + (Math.floor(diff/2));
 }
 
 /*
@@ -173,11 +173,11 @@ function bfs(queue) {
 	}
 	var node = queue.dequeue();
 	console.log(node)
+  if (node.left) {
+    queue.enqeueue(node.left);
+  }
 	if (node.right) {
 		queue.enqueue(node.right);
-	}
-	if (node.left) {
-		queue.enqeueue(node.left);
 	}
 	bfs(queue);
 }
