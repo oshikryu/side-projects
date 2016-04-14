@@ -182,8 +182,10 @@ function Poker() {
       return;
     } else if (this.isFlush) {
       addHands('Flush');
+      return;
     } else if (this.isStraight) {
       addHands('Straight');
+      return;
     }
 
     addHands(checkOfAKind(cardArray, 4));
@@ -314,7 +316,6 @@ function Poker() {
     let min = getMin(indexArray);
 
     if (max - min === 4) {
-      clearUsed(cardArray);
       this.isStraight = true;
     }
   }
@@ -331,7 +332,6 @@ function Poker() {
     let suits = Object.keys(this.suitCounter);
     for (let ii=0;ii<suits.length;ii++) {
       if (this.suitCounter[suits[ii]] === 5) {
-        clearUsed(cardArray);
         this.isFlush = true;
       }
     }
@@ -384,4 +384,4 @@ function Poker() {
 }
 
 let p = new Poker();
-p.hands('4C 2C 3S 5D 6C');
+p.hands('4C 2C 3C 5C 6C');
