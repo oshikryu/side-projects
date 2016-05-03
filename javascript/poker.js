@@ -383,5 +383,5 @@ function Poker() {
   }
 }
 
-let p = new Poker();
-p.hands('4C 2C 3C 5C 6C');
+//let p = new Poker();
+//p.hands('4C 2C 3C 5C 6C');
