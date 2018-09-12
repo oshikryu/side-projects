@@ -1,0 +1,17 @@
+Cleo Select:Slack:foo@slack.fake.com,bar@slack.fake.com,baz@slack.fake.com
+1st-Time Parents:LUCY:scott@startwithlucy.com,kurt@startwithlucy.com
+bar@slack.co.uk,baz@slack.co.uk;Slack - UK;Slack
+<corrupted>
+jenny@ebay.fake.com,kyle@stubhub.fake.com;eBay;eBay
+
+1st-Time Parents:LUCY:steven@startwithlucy.com,kurt@startwithlucy.com
+kayla@ebay.fake.com,sylviane@ebay.fake.com;eBay;eBay
+,
+Asana -- Cleo Select:james@asana
+Experienced Parents:LUCY:shannon@startwithlucy.com
+randi@hicleo.com;Cleo (Employees);Cleo
+matt@ebay.fake.com,liz@ticketmaster.fake.com,liz@stubhub.fake.com,lucy@ebay.fake.com;eBay;eBay
+Baby Boost:Box:nelson@box.fake.com,nick@box.fake.com
+chitra@ebay.fake.com;eBay;eBay
+foo:bar:baz
+Intercom -- Intercom (main):sean@intercom.fake.com
