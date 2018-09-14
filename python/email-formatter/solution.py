@@ -20,6 +20,7 @@ def sorted_nicely( l ):
     return sorted(l, key = alphanum_key)
 
 def check_email(email_string):
+    # string -> list
     """
     Check the email string for
     """
@@ -73,7 +74,9 @@ def package_formatter(format_type, groups):
 def read_and_format():
     """
     Take input file and match for regex
+    List is used instead of set() because set() cannot take dicts as a value
     """
+    # () -> (generator)
     with open('input.txt') as inputfile:
         all_packages = list()
         package_counter = dict()
@@ -95,26 +98,35 @@ def read_and_format():
                     obj.update({'count': package_counter[obj['package']]})
                     all_packages.append(obj)
 
-        return all_packages
+        yield all_packages
 
 
 # gratuitously taken from https://stackoverflow.com/a/73050/1557887
 def sort_packages(all_packages):
-    # (list) -> (list)
+    # (generator) -> (generator)
     """
     sorts the list of packages by package name alphanumerically
     """
-    return sorted(all_packages, key=itemgetter('package')) 
+    for packages in all_packages:
+        sorted_packages = sorted(packages, key=lambda k: k['package'])
+    yield sorted_packages
 
-def write_to_output(all_packages):
+
+def write_to_output(sorted_packages):
+    # (generator) -> None
+    """
+    Writes the sorted list into output.json as a text file
+    """
     with open('output.json', 'w') as outputfile:
-        package_str = json.dumps(all_packages)
-        outputfile.write(package_str)
+        for sort_packs in sorted_packages:
+            package_str = json.dumps(sort_packs)
+            outputfile.write(package_str)
 
 def main():
     all_packages = read_and_format()
     sorted_packages = sort_packages(all_packages)
     write_to_output(sorted_packages)
+    print('Check output.json')
 
 
 if __name__ == "__main__":
