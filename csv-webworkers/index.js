@@ -2,6 +2,13 @@ var myWorker = new Worker('worker.js');
 var csvFile, blob;
 var clickStart, clickEnd;
 
+function blockingExport(data) {
+  console.log('Initiate blocking csv download');
+  var res = d3.csvFormat(data);
+  var blob = new Blob([res], { type: 'text/csv;charset=utf-8;' });
+  saveFile(blob);
+}
+
 /* This method will use the data from data.js and trigger creation of a csv
  * @method exportMe
  */
@@ -9,7 +16,6 @@ function exportMe(data) {
   clickStart = new Date().getTime();
   csvFile = getCSV(data);
 }
-
 function getCSV(data) {
   console.log('Data length is: ' + data.length);
   console.info('Starting call for csv format');
@@ -35,6 +41,12 @@ function workerMaker(type, arg) {
   }
 }
 
+/* Take a blob and force browser to click a link and save it from a download path
+ * log out timing
+ *
+ * @param {Blob}
+ * @method saveFile
+ */
 function saveFile(blob) {
   var uniqTime = new Date().getTime();
   var filename = 'my_file_' + uniqTime;
@@ -71,7 +83,7 @@ function saveFile(blob) {
   }
 
   clickEnd = new Date().getTime();
-  console.log('The whole process took: ' + (clickEnd - start) + ' ms');
+  console.log('The whole process took: ' + (clickEnd - clickStart) + ' ms');
 }
 
 myWorker.onmessage = function(e) {

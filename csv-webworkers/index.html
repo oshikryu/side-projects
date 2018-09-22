@@ -3,21 +3,33 @@
     testing csv export
   </title>
   <head>
-    <script src="compare_data.js"></script>
-    <script src="data.js"></script>
     <script src="worker.js"></script>
-    <script src="index.js"></script>
     <script src="datamaker.js"></script>
+    <script src="index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
   </head>
   <body>
-    <button onClick="exportMe(data)">Click to export 50k data points</button>
-    <button onClick="exportMe(doubleData)">Click to export 100k data points</button>
-    <button onClick="exportMe(compareData)">Click to export 50k compare by machine</button>
-    <button onClick="exportMe(doubleCompareData)">Click to export 100k compare by machine</button>
-
-    <button onClick="exportMe(millionData)">Click to export a million compare by machine</button>
-    <textarea type="textarea">
-
-    </textarea>
+    <div style="float: left;">
+      <p>
+        Click for non-blocking csv export
+      </p>
+      <button onClick="exportMe(data)">Click to export 50k data points</button>
+      <button onClick="exportMe(doubleData)">Click to export 100k data points</button>
+      <button onClick="exportMe(millionData)">Click to export a million compare by machine</button>
+    <div>
+    <div style="float: left;">
+      <p>
+        Click for blocking csv export
+      </p>
+      <button onClick="blockingExport(data)">Click to export 50k data points</button>
+      <button onClick="blockingExport(doubleData)">Click to export 100k data points</button>
+      <button onClick="blockingExport(millionData)">Click to export a million compare by machine</button>
+    <div>
+    <div style="float: left;">
+      <p>
+        Type in the textarea to test browser responsiveness
+      </p>
+      <textarea style="float: left; clear: both;" type="textarea"></textarea>
+    </div>
   </body>
 </html>

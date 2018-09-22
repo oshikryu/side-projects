@@ -1,4 +1,4 @@
-if( 'function' === typeof importScripts) {
+if('function' === typeof importScripts) {
   importScripts('https://cdnjs.cloudflare.com/ajax/libs/d3/4.8.0/d3.min.js')
   onmessage = function(e) {
     var data = e.data;
