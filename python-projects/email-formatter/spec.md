@@ -145,10 +145,3 @@ bar@slack.co.uk,baz@slack.co.uk;Slack - UK;Slack
     }
 ]
 ```
-
-## Submission Instructions
-Write your solution in a file called `solution.*` with the extension of your chosen language (e.g. `solution.py`, `solution.js`). The solution file should be in the root directory. You are free to create additional files and directories if needed, but don't move any of the original files.
-
-Once you’ve finished, zip your project and send it back to engineering@BLAHBLAH.com or share it over GitHub, Google Drive, or Dropbox. Be sure to include instructions on how to run your program in a README file. If you wrote any tests, include those too with instructions on how to run them. We’ll run our own tests against your program’s output and get back to you shortly.
-
-We hope you enjoy this chance to show us your ability and style. Feel free to contact engineering@BLAHBLAH.com if you need clarification on any instructions.
