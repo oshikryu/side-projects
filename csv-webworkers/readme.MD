@@ -9,17 +9,17 @@ while the workers are exporting data
 
 Modify the data array with the following format:
 ```
-var data = [
-	{
-		x: 1,
-		y: 2,
-	}
-]
+var data = [{
+  x: 1,
+  y: 2,
+}]
 ```
 
 ## To run
 You must have a python server running
+```
 python -m SimpleHTTPServer 3434
+```
 
 A webserver is required to reference webworker files in the browser due to cross-site requirements
 
