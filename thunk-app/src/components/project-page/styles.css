@@ -1,0 +1,21 @@
+.project-page-header {
+  position: relative;
+  display: flex;
+  padding: 50px 0 10px 90px;
+  border-bottom: 1px #edeff3 solid;
+}
+.project-page .PlusSign {
+  position: absolute;
+  right: 150px;
+  background-color: #4a475f;
+  stroke: #fff;
+  height: 60px;
+  width: 60px;
+  border-radius: 30px;
+  cursor:pointer;
+}
+.project-page .PlusSign svg {
+  height: 20px;
+  width: 20px;
+  padding: 20px;
+}

@@ -1,0 +1,10 @@
+.list-item {
+  display: flex;
+}
+.list-item-editing {
+  border-top: 1px #ccc solid;
+  border-bottom: 1px #ccc solid;
+  background-color: #fff;
+  height: 40px;
+  padding: 15px 20px 15px 20px;
+}
