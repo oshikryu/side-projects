@@ -24,3 +24,28 @@
 .project-page-list {
   margin: 70px 90px 0 90px;
 }
+
+/* overriding antd modal */
+ 
+.ant-modal-content {
+  width: 465px !important;
+  height: 200px !important;
+}
+
+.ant-modal-confirm .ant-modal-confirm-btns {
+  margin-top: 0;
+  float: right;
+  position: absolute;
+  right: 36px;
+  bottom: 24px;
+}
+
+.ant-modal-confirm-warning .ant-modal-confirm-body > .anticon, .ant-modal-confirm-confirm .ant-modal-confirm-body > .anticon {
+  background-color: #faad14;
+  border-radius: 11px;
+ }
+
+.ant-modal-confirm-warning .ant-modal-confirm-body > .anticon path:last-child,
+.ant-modal-confirm-confirm .ant-modal-confirm-body > .anticon path:last-child {
+  fill: #fff;
+}
