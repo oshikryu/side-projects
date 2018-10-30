@@ -10,3 +10,7 @@ yarn start
 ```
 2) Navigate to localhost:3000
 
+## TODO:
+- add `onBlur` callback to antd name input
+- draggable project rows
+

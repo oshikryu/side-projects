@@ -16,8 +16,6 @@ class ProjectPage extends Component {
     super(props);
     this.state = {
       projects: [],
-      showDeleteModal: false,
-      selectedProject: null,
     };
   }
 
@@ -75,20 +73,16 @@ class ProjectPage extends Component {
     projectCopy.splice(projIndex, 1);
     this.setState({
       projects: projectCopy,
-      showDeleteModal: false,
-      selectedProject: null,
     });
   }
 
   /* Show modal before actually deleting project to confirm
+   * Wrap render delete modal for calling side effect actions
    *
    * @method onShowDeleteModal
    */
   onShowDeleteModal = (project) => {
-    this.setState({
-      showDeleteModal: true,
-      selectedProject: project,
-    });
+    this.renderDeleteModal(project);
   }
 
   /* Hide modal before actually deleting project to confirm
@@ -96,20 +90,21 @@ class ProjectPage extends Component {
    * @method hideDeleteProject
    */
   onHideDeleteModal = () => {
-    this.setState({
-      showDeleteModal: false,
-      selectedProject: null,
-    });
+    // TODO: callback for  API request
   }
 
-  renderDeleteModal = () => {
+  /* Call antd confirm modal component
+   *
+   * @param {Object} project
+   * @method renderDeleteModal
+   */
+  renderDeleteModal = (project) => {
     const confirm = Modal.confirm;
-    const { selectedProject } = this.state;
     confirm({
       title: 'Are you sure you want to delete this project?',
       content: 'This action cannot be undone.',
       onOk: () => {
-        this.deleteProject(selectedProject);
+        this.deleteProject(project);
       },
       onCancel: () => {
         this.onHideDeleteModal();
@@ -120,7 +115,7 @@ class ProjectPage extends Component {
   }
 
   render() {
-    const { projects, showDeleteModal } = this.state;
+    const { projects } = this.state;
 
     return (
       <div className="project-page">
@@ -140,7 +135,6 @@ class ProjectPage extends Component {
             );
           })}
         </div>
-        {showDeleteModal && this.renderDeleteModal()}
       </div>
     );
   }
