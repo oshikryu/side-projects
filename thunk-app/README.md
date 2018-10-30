@@ -5,7 +5,7 @@ This app is designed to create a non-persisted demo of a create/edit/delete proj
 ## Run the app
 1)
 ```
-yarn install (for first run)
+yarn install # (for first run)
 yarn start
 ```
 2) Navigate to localhost:3000
