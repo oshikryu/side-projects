@@ -9,18 +9,26 @@
 .list-item-editing, .list-item {
   border-bottom: 1px #ccc solid;
   background-color: #fff;
-  height: 40px;
+  line-height: 40px;
   padding: 15px 20px 15px 20px;
   display: flex;
   position: relative;
-
 }
 
-.list-item-editing .list-item-name input,
-.list-item .list-item-name input,
-{
+.list-item-editing-input {
   height: 24px;
   font-size: 14px;
+  width: 175px;
+}
+
+.list-item .project-icon,
+.list-item-editing .project-icon {
+  background-image: url("../../icons/ProjectIcon_2x.png");
+  background-size: 32px;
+  background-repeat: no-repeat;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
 }
 
 .list-item .DeleteIcon, .list-item-editing .DeleteIcon {
@@ -41,13 +49,29 @@
   fill-opacity: 1;
 }
 
-.list-item-name,
-.list-item-last-modified,
-{
+.list-item .list-item-name,
+.list-item-last-modified {
+  display: flex;
   margin: 0 10px;
+  font-size: 13px;
+  color: #777;
+  position: relative;
+  padding: 0 8px;
 }
 
-.list-item-name:hover,
-{
-  background-color: #ccc;
+.list-item .EditIcon svg {
+  margin: 8px;
+  position: absolute;
+  display: flex;
+  right: 0;
+}
+
+.list-item .list-item-name:hover {
+  background-color: #efefef;
+  cursor: pointer;
+}
+
+.list-item .list-item-name:hover svg path {
+  fill: #333;
+  fill-opacity: 1;
 }

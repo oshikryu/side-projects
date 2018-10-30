@@ -1,8 +1,15 @@
 import React, { Component } from 'react';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Row, Col, Input } from 'antd';
+
+import EditIcon from 'icons/EditIcon';
 import DeleteIcon from 'icons/DeleteIcon';
+
 import './styles.css';
+import 'antd/dist/antd.css';
+
+const DATE_FORMAT = 'MMM DD, YYYY HH:mm a'
 
 class ListItem extends Component {
   constructor(props) {
@@ -46,7 +53,8 @@ class ListItem extends Component {
   }
 
   getDateDisplay = (date) => {
-    return `${date.toDateString()}`;
+    const dateStr = moment(date).format(DATE_FORMAT);
+    return dateStr;
   }
 
   render() {
@@ -57,9 +65,10 @@ class ListItem extends Component {
     
     if (isEditing) {
       return (
-        <Row className="list-item-editing" type="flex" justify="space-between">
-          <Col span={8} className="list-item-name">
-            <Input value={tempProperties.name} onPressEnter={this.changeProject} onChange={this.changeName} placeholder="Name of your project"/>
+        <Row className="list-item-editing" type="flex" justify="space-between" key={`${project.id}`}>
+          <Col span={2} className="project-icon"></Col>
+          <Col span={7} className="list-item-name">
+            <Input value={tempProperties.name} onPressEnter={this.changeProject} onChange={this.changeName} placeholder="Name of your project" className="list-item-editing-input"/>
           </Col>
           <Col span={8} className="list-item-last-modified">
             {formattedModified}
@@ -71,10 +80,16 @@ class ListItem extends Component {
       )
     } else {
       return (
-        <Row className="list-item" type="flex" justify="space-between">
-          <Col span={8} className="list-item-name" onClick={this.getEditingMode}>
+        <Row className="list-item" type="flex" justify="space-between" key={`${project.id}`}>
+          <Col span={2} className="project-icon"></Col>
+          <Col span={5} className="list-item-name-container" onClick={this.getEditingMode}>
             <div className="list-item-name">
               {name}
+            </div>
+          </Col>
+          <Col span={2} className="list-item-name-container" onClick={this.getEditingMode}>
+            <div className="list-item-name">
+              <EditIcon />
             </div>
           </Col>
           <Col span={8} className="list-item-last-modified">

@@ -77,10 +77,10 @@ class ProjectPage extends Component {
           <PlusSign onClick={this.createProject}/>
         </div>
         <div className="project-page-list">
-          {projects.map((project) => {
+          {projects.map((project, idx) => {
             return (
               <ListItem
-                key={project.id}
+                key={idx}
                 project={project}
                 onChangeProject={this.updateProject}
                 onDeleteProject={this.deleteProject}
