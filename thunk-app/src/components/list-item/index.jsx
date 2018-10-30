@@ -16,9 +16,7 @@ class ListItem extends Component {
     super(props);
     this.state = {
       isEditing: false,
-      tempProperties: {
-        ...props.project,
-      }
+      tempProperties: props.project,
     };
   }
 
@@ -32,11 +30,20 @@ class ListItem extends Component {
     this.setState({isEditing: true});
   }
 
+  /* Propagate the changes from the temporary project model to the parent component
+   *
+   * @method changeProject
+   */
   changeProject = () => {
     this.setState({isEditing: false});
     this.props.onChangeProject(this.state.tempProperties);
   }
 
+  /* Mutate the tempProperties key for name
+   * Not persisted until enter is pressed
+   *
+   * @method changeName
+   */
   changeName = (evt) => {
     const name = evt.target.value;
     this.setState({
@@ -47,11 +54,12 @@ class ListItem extends Component {
     });
   }
 
-  deleteProject = () => {
-    const { project } = this.props;
-    this.props.onDeleteProject(project.id);
-  }
-
+  /* Format date into a string format
+   *
+   * @param {Date} date
+   * @method getDateDisplay
+   * @return {String}
+   */
   getDateDisplay = (date) => {
     const dateStr = moment(date).format(DATE_FORMAT);
     return dateStr;
@@ -68,13 +76,18 @@ class ListItem extends Component {
         <Row className="list-item-editing" type="flex" justify="space-between" key={`${project.id}`}>
           <Col span={2} className="project-icon"></Col>
           <Col span={7} className="list-item-name">
-            <Input value={tempProperties.name} onPressEnter={this.changeProject} onChange={this.changeName} placeholder="Name of your project" className="list-item-editing-input"/>
+            <Input
+              value={tempProperties.name}
+              onPressEnter={this.changeProject}
+              onChange={this.changeName}
+              placeholder="Name of your project"
+              className="list-item-editing-input"/>
           </Col>
           <Col span={8} className="list-item-last-modified">
             {formattedModified}
           </Col>
           <Col span={4}>
-            <DeleteIcon onClick={this.deleteProject} />
+            <DeleteIcon onClick={() => this.props.onShowDeleteModal(project)} />
           </Col>
         </Row>
       )
@@ -96,7 +109,7 @@ class ListItem extends Component {
             {formattedModified}
           </Col>
           <Col span={4}>
-            <DeleteIcon onClick={this.deleteProject} />
+            <DeleteIcon onClick={() => this.props.onShowDeleteModal(project)} />
           </Col>
         </Row>
       );
@@ -105,8 +118,9 @@ class ListItem extends Component {
 }
 
 ListItem.propTypes = {
-  onChangeProject: PropTypes.func,
-  onDeleteProject: PropTypes.func,
+  project: PropTypes.object.isRequired,
+  onChangeProject: PropTypes.func.isRequired,
+  onShowDeleteModal: PropTypes.func.isRequired,
 };
 
 export default ListItem;

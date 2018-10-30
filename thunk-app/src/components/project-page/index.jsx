@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
+import { Modal } from 'antd';
 import uuid from 'uuid';
 import PlusSign from 'icons/PlusSign';
 import ListItem from 'components/list-item';
 import './styles.css';
 
 const PROJECT_MODEL = {
-  id: uuid(),
+  id: null,
   name: '',
   lastModified: new Date(),
 };
@@ -15,13 +16,22 @@ class ProjectPage extends Component {
     super(props);
     this.state = {
       projects: [],
+      showDeleteModal: false,
+      selectedProject: null,
     };
   }
 
+  /* Generate a blank project model with some sort of id to distinguish it in local state
+   *
+   * @method createProject
+   */
   createProject = () => {
     const { projects } = this.state;
     const projectCopy = projects.slice();
-    projectCopy.push(PROJECT_MODEL);
+    projectCopy.push({
+      ...PROJECT_MODEL,
+      id: uuid(), // "random" id
+    });
 
     this.setState({
       projects: projectCopy,
@@ -37,14 +47,13 @@ class ProjectPage extends Component {
   updateProject = (project) => {
     const { projects } = this.state;
     const projectCopy = projects.slice();
-    const projIndex = projectCopy.findIndex((proj) => proj.id);
+    const projIndex = projectCopy.findIndex((proj) => proj.id === project.id);
     if (projIndex < 0) {
       console.warn('invalid project index');
       return;
     }
 
     projectCopy.splice(projIndex, 1, project);
-
     this.setState({projects: projectCopy});
   }
 
@@ -57,18 +66,61 @@ class ProjectPage extends Component {
   deleteProject = (project) => {
     const { projects } = this.state;
     const projectCopy = projects.slice();
-    const projIndex = projectCopy.findIndex((proj) => proj.id);
+    const projIndex = projectCopy.findIndex((proj) => proj.id === project.id);
     if (projIndex < 0) {
       console.warn('invalid project index');
       return;
     }
 
     projectCopy.splice(projIndex, 1);
-    this.setState({projects: projectCopy});
+    this.setState({
+      projects: projectCopy,
+      showDeleteModal: false,
+      selectedProject: null,
+    });
+  }
+
+  /* Show modal before actually deleting project to confirm
+   *
+   * @method onShowDeleteModal
+   */
+  onShowDeleteModal = (project) => {
+    this.setState({
+      showDeleteModal: true,
+      selectedProject: project,
+    });
+  }
+
+  /* Hide modal before actually deleting project to confirm
+   *
+   * @method hideDeleteProject
+   */
+  onHideDeleteModal = () => {
+    this.setState({
+      showDeleteModal: false,
+      selectedProject: null,
+    });
+  }
+
+  renderDeleteModal = () => {
+    const confirm = Modal.confirm;
+    const { selectedProject } = this.state;
+    confirm({
+      title: 'Are you sure you want to delete this project?',
+      content: 'This action cannot be undone.',
+      onOk: () => {
+        this.deleteProject(selectedProject);
+      },
+      onCancel: () => {
+        this.onHideDeleteModal();
+      },
+      okText: 'Yes',
+      cancelText: 'No',
+    });
   }
 
   render() {
-    const { projects } = this.state;
+    const { projects, showDeleteModal } = this.state;
 
     return (
       <div className="project-page">
@@ -82,12 +134,13 @@ class ProjectPage extends Component {
               <ListItem
                 key={idx}
                 project={project}
+                onShowDeleteModal={this.onShowDeleteModal}
                 onChangeProject={this.updateProject}
-                onDeleteProject={this.deleteProject}
               />
             );
           })}
         </div>
+        {showDeleteModal && this.renderDeleteModal()}
       </div>
     );
   }

@@ -3,6 +3,7 @@
   display: flex;
   padding: 50px 0 10px 90px;
   border-bottom: 1px #edeff3 solid;
+  font-weight: 600;
 }
 .project-page .PlusSign {
   position: absolute;

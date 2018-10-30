@@ -59,6 +59,11 @@
   padding: 0 8px;
 }
 
+.list-item .list-item-name {
+  color: #333;
+  font-size: 20px;
+}
+
 .list-item .EditIcon svg {
   margin: 8px;
   position: absolute;
