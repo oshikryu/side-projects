@@ -7,7 +7,29 @@ class Node {
 }
 
 let treeList = [];
+let tempList = [];
 let newIndex = 0;
+const fetchLeaf = (node, index=0) => {
+  console.log(`current data node: ${node.data}`);
+  console.log(`index level ${index}`);
+  if (node.left == null && node.right == null) {
+      tempList.push(node.data);
+    return index + 1;
+  }
+
+  if (node.left) {
+    index = fetchLeaf(node.left, index); 
+  }
+
+  if (node.right) {
+    if (node.left) {
+      index -= 1;
+    }
+    index = fetchLeaf(node.right, index); 
+  }
+  treeList.push(tempList);
+  tempList = [];
+};
 /**
  * Take a node from a tree and print the reverse dfs
  *
@@ -16,33 +38,33 @@ let newIndex = 0;
  * @method fetchLeaf
  * @return {void}
  */
-const fetchLeaf = (node, index=0) => {
-  console.log(`current data node: ${node.data}`);
-  console.log(`index level ${index}`);
-  if (node.left == null && node.right == null) {
-    if (treeList[index] != null) {
-      treeList[index].push(node.data);
-    } else {
-      treeList[index] = [node.data];
-    }
-    node.data = null;
-    return index;
-  }
+//const fetchLeaf = (node, index=0) => {
+  //console.log(`current data node: ${node.data}`);
+  //console.log(`index level ${index}`);
+  //if (node.left == null && node.right == null) {
+    //if (treeList[index] != null) {
+      //treeList[index].push(node.data);
+    //} else {
+      //treeList[index] = [node.data];
+    //}
+    //node.data = null;
+    //return index;
+  //}
 
-  if (node.left) {
-    fetchLeaf(node.left, index); 
-    node.left = null;
-  }
+  //if (node.left) {
+    //fetchLeaf(node.left, index); 
+    //node.left = null;
+  //}
 
-  if (node.right) {
-    fetchLeaf(node.right, index); 
-    node.right = null;
-  }
-  newIndex += 1;
-  console.log(`Place ${node.data} in ${newIndex}`);
+  //if (node.right) {
+    //fetchLeaf(node.right, index); 
+    //node.right = null;
+  //}
+  //newIndex += 1;
+  //console.log(`Place ${node.data} in ${newIndex}`);
 
-  fetchLeaf(node, newIndex);
-};
+  //fetchLeaf(node, newIndex);
+//};
 
 /*
  * Example 1
@@ -62,11 +84,11 @@ node.right = new Node(3);
 node.left.left = new Node(4);
 node.left.right = new Node(5);
 
-//console.log('\n----------')
-//console.log('Example 1');
-//fetchLeaf(node);
-//console.log(treeList);
-//console.log('\n----------')
+console.log('\n----------')
+console.log('Example 1');
+fetchLeaf(node);
+console.log(treeList);
+console.log('\n----------')
 
 /*
  * Example 2
@@ -119,9 +141,9 @@ nodeB.right.right = new Node(5);
 nodeB.right.right.left = new Node(6);
 nodeB.right.right.right = new Node(7);
 
-console.log('\n----------')
-console.log('Example 2');
-treeList = [];
-fetchLeaf(nodeB);
-console.log(treeList);
-console.log('\n----------')
+//console.log('\n----------')
+//console.log('Example 2');
+//treeList = [];
+//fetchLeaf(nodeB);
+//console.log(treeList);
+//console.log('\n----------')
