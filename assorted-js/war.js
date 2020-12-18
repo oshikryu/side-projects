@@ -1,15 +1,3 @@
-/* 
-
-Design a simple cardgame for 2 players. Here's the rules:
-
-- A deck of cards is shuffled and dealt evently between the two players.
-- Each round, both players reveal the top card of their deck and compare the values. The higher card value wins.
-- The winner then takes both those revealed cards and places them under their deck.
-- Win condition is that there are no cards left in a player's deck. That player is the loser
-
-In case of a draw remove 3 cards from each player's deck and place them into a sepearate pile - Draw a new card as usual and compare. The winner gets all the cards in the separate pile as well as the normal victory cards
-
-*/
 
 const MAXHANDS = 100
 const runGame = (handA=[], handB=[]) => {
