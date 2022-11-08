@@ -1,0 +1,8 @@
+{
+  "name": "Kelly Doe",
+  "id": 12324,
+  "contact": {
+    "email": "kdoe@example.com",
+    "phone": "5551234567"
+  }
+}

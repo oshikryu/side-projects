@@ -1,0 +1,5 @@
+name
+email
+phone
+us_citizen
+account_balance

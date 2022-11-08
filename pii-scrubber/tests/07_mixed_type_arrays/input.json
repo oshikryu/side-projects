@@ -1,0 +1,23 @@
+{
+  "name": "Kelly Doe",
+  "email": "kdoe@example.com",
+  "id": 12324,
+  "phone": "5551234567",
+  "contacts": [{
+      "name": "Bob Doe",
+      "us_citizen": false
+    },
+    12345,
+    "bob@example.com",
+    {
+      "id": 2343,
+      "name": "John Smith",
+      "email": "john.smith@yahoo.com"
+    },
+    {
+      "phone": "(555) 234-2343",
+      "name": "Joe Schmoe",
+      "email": "jschmoe@aol.com"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+if [ "$1" == "" ]; then
+  echo "sensitive fields arg is empty"
+  exit 1
+fi
+
+if [ "$2" == "" ]; then
+  echo "input file arg is empty"
+  exit 1
+fi
+
+python3 main.py $1 $2
