@@ -1,0 +1,21 @@
+{
+	"name": "nikhil-interview",
+	"devDependencies": {
+		"dotenv-cli": "^8.0.0",
+		"eslint": "^8.57.0",
+		"prettier": "^3.2.5",
+		"turbo": "^2.5.0"
+	},
+	"packageManager": "bun@1.2.7",
+	"private": true,
+	"scripts": {
+		"build": "dotenv -- turbo run build",
+		"start": "dotenv -- turbo run start",
+		"dev": "dotenv -- turbo run dev",
+		"type-check": "dotenv -- turbo run type-check",
+		"lint": "turbo run lint",
+		"format": "prettier --write \"**/*.{ts,tsx,md}\"",
+		"test": "turbo run test --filter=web"
+	},
+	"workspaces": ["apps/*", "packages/*"]
+}
