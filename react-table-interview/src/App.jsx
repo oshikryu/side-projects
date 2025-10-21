@@ -1,0 +1,244 @@
+import React, { useState, useMemo, useCallback, memo } from 'react';
+
+// Sample data structure
+const generateMockData = (count = 100) => {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i + 1,
+    name: `User ${i + 1}`,
+    email: `user${i + 1}@example.com`,
+    department: ['Engineering', 'Sales', 'Marketing', 'HR'][i % 4],
+    salary: 50000 + Math.floor(Math.random() * 100000),
+    joinDate: new Date(2020 + (i % 5), i % 12, (i % 28) + 1).toISOString().split('T')[0]
+  }));
+};
+
+// Custom hook for table data management
+function useTableData(rawData) {
+  const [selectedRows, setSelectedRows] = useState(new Set());
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [filters, setFilters] = useState({});
+
+  // TODO: Implement sorting logic
+  const sortedData = useMemo(() => {
+    if (!sortConfig.key) return rawData;
+    
+    // IMPLEMENT: Sort rawData based on sortConfig
+    // Should handle different data types (string, number, date)
+    return [...rawData];
+  }, [rawData, sortConfig]);
+
+  // TODO: Implement filtering logic
+  const filteredData = useMemo(() => {
+    if (Object.keys(filters).length === 0) return sortedData;
+    
+    // IMPLEMENT: Filter sortedData based on filters object
+    // Should support multiple simultaneous filters
+    return sortedData;
+  }, [sortedData, filters]);
+
+  // TODO: Implement row selection
+  const toggleRow = useCallback((id) => {
+    // IMPLEMENT: Toggle individual row selection
+    setSelectedRows(prev => {
+      const newSet = new Set(prev);
+      // Add or remove id from set
+      return newSet;
+    });
+  }, []);
+
+  // TODO: Implement select all/none
+  const toggleAll = useCallback(() => {
+    // IMPLEMENT: Select all visible rows or clear selection
+    // Should only select currently filtered/visible rows
+  }, [filteredData]);
+
+  // TODO: Implement sort application
+  const applySort = useCallback((key) => {
+    // IMPLEMENT: Update sort configuration
+    // Should toggle between asc/desc/none
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  }, []);
+
+  // TODO: Implement filter application
+  const applyFilters = useCallback((newFilters) => {
+    // IMPLEMENT: Update filters
+    setFilters(newFilters);
+  }, []);
+
+  return {
+    visibleData: filteredData,
+    selectedRows,
+    toggleRow,
+    toggleAll,
+    applySort,
+    applyFilters,
+    sortConfig,
+    filters
+  };
+}
+
+// Memoized row component to prevent unnecessary re-renders
+const TableRow = memo(({ row, isSelected, onToggle }) => {
+  return (
+    <tr className={isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'}>
+      <td className="px-4 py-2 border-b">
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => onToggle(row.id)}
+          className="cursor-pointer"
+        />
+      </td>
+      <td className="px-4 py-2 border-b">{row.id}</td>
+      <td className="px-4 py-2 border-b">{row.name}</td>
+      <td className="px-4 py-2 border-b">{row.email}</td>
+      <td className="px-4 py-2 border-b">{row.department}</td>
+      <td className="px-4 py-2 border-b">${row.salary.toLocaleString()}</td>
+      <td className="px-4 py-2 border-b">{row.joinDate}</td>
+    </tr>
+  );
+});
+
+TableRow.displayName = 'TableRow';
+
+// Main table component
+function DataTable() {
+  const mockData = useMemo(() => generateMockData(100), []);
+  
+  const {
+    visibleData,
+    selectedRows,
+    toggleRow,
+    toggleAll,
+    applySort,
+    applyFilters,
+    sortConfig
+  } = useTableData(mockData);
+
+  const [departmentFilter, setDepartmentFilter] = useState('');
+
+  const handleFilterChange = (e) => {
+    const dept = e.target.value;
+    setDepartmentFilter(dept);
+    applyFilters(dept ? { department: dept } : {});
+  };
+
+  const getSortIndicator = (key) => {
+    if (sortConfig.key !== key) return ' ⇅';
+    return sortConfig.direction === 'asc' ? ' ↑' : ' ↓';
+  };
+
+  return (
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-4">Employee Data Table</h1>
+        
+        <div className="flex gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Filter by Department:</label>
+            <select 
+              value={departmentFilter}
+              onChange={handleFilterChange}
+              className="border rounded px-3 py-2"
+            >
+              <option value="">All Departments</option>
+              <option value="Engineering">Engineering</option>
+              <option value="Sales">Sales</option>
+              <option value="Marketing">Marketing</option>
+              <option value="HR">HR</option>
+            </select>
+          </div>
+          
+          <div className="flex items-end">
+            <button 
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              disabled={selectedRows.size === 0}
+            >
+              Export Selected ({selectedRows.size})
+            </button>
+          </div>
+        </div>
+
+        <div className="text-sm text-gray-600">
+          Showing {visibleData.length} of {mockData.length} rows
+        </div>
+      </div>
+
+      <div className="overflow-x-auto border rounded-lg">
+        <table className="w-full">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-3 text-left border-b">
+                <input
+                  type="checkbox"
+                  onChange={toggleAll}
+                  className="cursor-pointer"
+                />
+              </th>
+              <th 
+                className="px-4 py-3 text-left border-b cursor-pointer hover:bg-gray-200"
+                onClick={() => applySort('id')}
+              >
+                ID{getSortIndicator('id')}
+              </th>
+              <th 
+                className="px-4 py-3 text-left border-b cursor-pointer hover:bg-gray-200"
+                onClick={() => applySort('name')}
+              >
+                Name{getSortIndicator('name')}
+              </th>
+              <th className="px-4 py-3 text-left border-b">Email</th>
+              <th 
+                className="px-4 py-3 text-left border-b cursor-pointer hover:bg-gray-200"
+                onClick={() => applySort('department')}
+              >
+                Department{getSortIndicator('department')}
+              </th>
+              <th 
+                className="px-4 py-3 text-left border-b cursor-pointer hover:bg-gray-200"
+                onClick={() => applySort('salary')}
+              >
+                Salary{getSortIndicator('salary')}
+              </th>
+              <th 
+                className="px-4 py-3 text-left border-b cursor-pointer hover:bg-gray-200"
+                onClick={() => applySort('joinDate')}
+              >
+                Join Date{getSortIndicator('joinDate')}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {visibleData.map(row => (
+              <TableRow
+                key={row.id}
+                row={row}
+                isSelected={selectedRows.has(row.id)}
+                onToggle={toggleRow}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
+        <h3 className="font-semibold mb-2">TODO - Improvements Needed:</h3>
+        <ul className="text-sm space-y-1 list-disc list-inside">
+          <li>Implement sorting logic in useTableData hook</li>
+          <li>Implement filtering logic for multiple criteria</li>
+          <li>Fix row selection (toggleRow and toggleAll)</li>
+          <li>Add virtualization for 10,000+ rows (react-window)</li>
+          <li>Add debouncing for filter inputs</li>
+          <li>Implement export functionality</li>
+          <li>Add loading states and error handling</li>
+          <li>Write unit tests for useTableData hook</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export default DataTable;
