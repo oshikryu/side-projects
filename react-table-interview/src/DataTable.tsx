@@ -176,6 +176,81 @@ function useTableData(rawData: Employee[]) {
   };
 }
 
+// Custom hook for table pagination
+function useTablePagination<T>(data: T[], initialPageSize: number = 10) {
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(initialPageSize);
+
+  // Calculate total pages
+  const totalPages = useMemo(() => {
+    return Math.ceil(data.length / pageSize);
+  }, [data.length, pageSize]);
+
+  // Get paginated data
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return data.slice(startIndex, endIndex);
+  }, [data, currentPage, pageSize]);
+
+  // Navigation functions
+  const goToPage = useCallback((page: number) => {
+    const pageNumber = Math.max(1, Math.min(page, totalPages));
+    setCurrentPage(pageNumber);
+  }, [totalPages]);
+
+  const nextPage = useCallback(() => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  }, [totalPages]);
+
+  const previousPage = useCallback(() => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
+  }, []);
+
+  const changePageSize = useCallback((newPageSize: number) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1); // Reset to first page when changing page size
+  }, []);
+
+  // Computed values
+  const canGoNext = currentPage < totalPages;
+  const canGoPrevious = currentPage > 1;
+
+  const pageInfo = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize + 1;
+    const endIndex = Math.min(currentPage * pageSize, data.length);
+    return `Showing ${startIndex}-${endIndex} of ${data.length}`;
+  }, [currentPage, pageSize, data.length]);
+
+  // Reset to page 1 when data changes (e.g., after filtering)
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
+
+  return {
+    // Data
+    paginatedData,
+
+    // State
+    currentPage,
+    pageSize,
+    totalPages,
+
+    // Navigation
+    goToPage,
+    nextPage,
+    previousPage,
+    changePageSize,
+
+    // Computed
+    canGoNext,
+    canGoPrevious,
+    pageInfo
+  };
+}
+
 // Memoized row component to prevent unnecessary re-renders
 interface TableRowProps {
   row: Employee;
@@ -219,6 +294,19 @@ function DataTable() {
     applyFilters,
     sortConfig
   } = useTableData(mockData);
+
+  const {
+    paginatedData,
+    currentPage,
+    pageSize,
+    totalPages,
+    nextPage,
+    previousPage,
+    changePageSize,
+    canGoNext,
+    canGoPrevious,
+    pageInfo
+  } = useTablePagination(visibleData)
 
   const [departmentFilter, setDepartmentFilter] = useState<string>('');
 
@@ -265,7 +353,7 @@ function DataTable() {
         </div>
 
         <div className="text-sm text-gray-600">
-          Showing {visibleData.length} of {mockData.length} rows
+          {pageInfo} • {visibleData.length} total after filters
         </div>
       </div>
 
@@ -314,7 +402,7 @@ function DataTable() {
             </tr>
           </thead>
           <tbody>
-            {visibleData.map(row => (
+            {paginatedData.map(row => (
               <TableRow
                 key={row.id}
                 row={row}
@@ -324,6 +412,46 @@ function DataTable() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="mt-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-700">Rows per page:</label>
+          <select
+            value={pageSize}
+            onChange={(e) => changePageSize(Number(e.target.value))}
+            className="border rounded px-3 py-2 text-sm"
+          >
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-600">
+            Page {currentPage} of {totalPages}
+          </span>
+
+          <div className="flex gap-2">
+            <button
+              onClick={previousPage}
+              disabled={!canGoPrevious}
+              className="px-4 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+            >
+              Previous
+            </button>
+            <button
+              onClick={nextPage}
+              disabled={!canGoNext}
+              className="px-4 py-2 border rounded bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
