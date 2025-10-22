@@ -1,7 +1,32 @@
 import React, { useState, useMemo, useCallback, memo } from 'react';
 
+// Type Definitions
+interface Employee {
+  id: number;
+  name: string;
+  email: string;
+  department: string;
+  salary: number;
+  joinDate: string;
+}
+
+type SortDirection = 'asc' | 'desc';
+
+interface SortConfig {
+  key: keyof Employee | null;
+  direction: SortDirection;
+}
+
+interface RangeFilter {
+  min?: number;
+  max?: number;
+}
+
+type FilterValue = string | number | RangeFilter;
+type Filters = Partial<Record<keyof Employee, FilterValue>>;
+
 // Sample data structure
-const generateMockData = (count = 100) => {
+const generateMockData = (count = 100): Employee[] => {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
     name: `User ${i + 1}`,
@@ -13,7 +38,7 @@ const generateMockData = (count = 100) => {
 };
 
 // use a spread operator to create a new array instance to avoid mutation
-function sortByKey(data, key, direction) {
+function sortByKey<T extends Record<string, any>>(data: T[], key: keyof T, direction: SortDirection): T[] {
   return data.sort((a, b) => {
     const aValue = a[key];
     const bValue = b[key];
@@ -43,10 +68,10 @@ function sortByKey(data, key, direction) {
   })
 }
 
-const filterData = (sortedData, filters) => {
+const filterData = <T extends Record<string, any>>(sortedData: T[], filters: Partial<Record<keyof T, FilterValue>>): T[] => {
   return sortedData.filter(row => {
     return Object.entries(filters).every(([key, filterValue]) => {
-      const rowValue = row[key]
+      const rowValue = row[key as keyof T]
 
       if (rowValue == null) {
         return false
@@ -77,10 +102,10 @@ const filterData = (sortedData, filters) => {
 }
 
 // Custom hook for table data management
-function useTableData(rawData) {
-  const [selectedRows, setSelectedRows] = useState(new Set());
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const [filters, setFilters] = useState({});
+function useTableData(rawData: Employee[]) {
+  const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
+  const [filters, setFilters] = useState<Filters>({});
 
   // TODO: Implement sorting logic
   const sortedData = useMemo(() => {
@@ -95,13 +120,13 @@ function useTableData(rawData) {
     return filterData(sortedData, filters)
   }, [sortedData, filters]);
 
-  const toggleRow = useCallback((id) => {
+  const toggleRow = useCallback((id: number) => {
     setSelectedRows(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(prev)) {
-        newSet.delete(prev)
+      if (newSet.has(id)) {
+        newSet.delete(id)
       } else {
-        newSet.add(prev);
+        newSet.add(id);
       }
 
       return newSet
@@ -113,29 +138,29 @@ function useTableData(rawData) {
     setSelectedRows((prev) => {
       const visibleIds = filteredData
         .map((data) => data.id )
-      
+
       const allSelected = visibleIds.every((id) => prev.has(id))
       if (allSelected) {
         const res = new Set(prev)
         visibleIds.forEach(id => res.delete(id))
         return res
       } else {
-        const res = new Set()
-        visibleIds.forEach(id => newSet.add(id))
+        const res = new Set<number>()
+        visibleIds.forEach(id => res.add(id))
         return res
       }
-      
+
     })
   }, [filteredData]);
 
-  const applySort = useCallback((key) => {
+  const applySort = useCallback((key: keyof Employee) => {
     setSortConfig(prev => ({
       key,
       direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
     }));
   }, []);
 
-  const applyFilters = useCallback((newFilters) => {
+  const applyFilters = useCallback((newFilters: Filters) => {
     setFilters(newFilters);
   }, []);
 
@@ -152,7 +177,13 @@ function useTableData(rawData) {
 }
 
 // Memoized row component to prevent unnecessary re-renders
-const TableRow = memo(({ row, isSelected, onToggle }) => {
+interface TableRowProps {
+  row: Employee;
+  isSelected: boolean;
+  onToggle: (id: number) => void;
+}
+
+const TableRow = memo<TableRowProps>(({ row, isSelected, onToggle }) => {
   return (
     <tr className={isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'}>
       <td className="px-4 py-2 border-b">
@@ -189,15 +220,15 @@ function DataTable() {
     sortConfig
   } = useTableData(mockData);
 
-  const [departmentFilter, setDepartmentFilter] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState<string>('');
 
-  const handleFilterChange = (e) => {
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const dept = e.target.value;
     setDepartmentFilter(dept);
     applyFilters(dept ? { department: dept } : {});
   };
 
-  const getSortIndicator = (key) => {
+  const getSortIndicator = (key: keyof Employee) => {
     if (sortConfig.key !== key) return ' ⇅';
     return sortConfig.direction === 'asc' ? ' ↑' : ' ↓';
   };

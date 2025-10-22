@@ -1,38 +1,52 @@
 import React, { useState, useMemo, useEffect, useRef, memo } from 'react';
-import { useKanbanBoard } from './hooks/useKanbanBoard';
+import {
+  useKanbanBoard,
+  Card,
+  Priority,
+  KanbanState,
+  Column as ColumnType,
+  FocusedCard,
+  ColumnWithCards
+} from './hooks/useKanbanBoard';
 
 // ============================================
 // NEW CARD FORM COMPONENT
 // ============================================
-const NewCardForm = memo(({ columnId, onSubmit, onCancel }) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState('medium');
-  const titleInputRef = useRef(null);
+interface NewCardFormProps {
+  columnId: string;
+  onSubmit: (columnId: string, card: Card) => void;
+  onCancel: () => void;
+}
+
+const NewCardForm = memo<NewCardFormProps>(({ columnId, onSubmit, onCancel }) => {
+  const [title, setTitle] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [priority, setPriority] = useState<Priority>('medium');
+  const titleInputRef = useRef<HTMLInputElement>(null);
   
   useEffect(() => {
     titleInputRef.current?.focus();
   }, []);
   
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!title.trim()) {
       alert('Please enter a title');
       return;
     }
-    
-    const newCard = {
+
+    const newCard: Card = {
       id: `card-${Date.now()}`,
       title: title.trim(),
       description: description.trim(),
       priority
     };
-    
+
     onSubmit(columnId, newCard);
   };
-  
-  const handleKeyDown = (e) => {
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       onCancel();
     }
@@ -101,21 +115,31 @@ NewCardForm.displayName = 'NewCardForm';
 // ============================================
 // TODO #5: OPTIMIZED CARD COMPONENT
 // ============================================
-const Card = React.memo(({ 
-  card, 
-  onDragStart, 
-  isFocused, 
+interface CardComponentProps {
+  card: Card;
+  onDragStart: (card: Card) => void;
+  isFocused: boolean;
+  isSelected: boolean;
+  onClick: (cardId: string) => void;
+  isPending?: (cardId: string) => boolean;
+  onDelete: (cardId: string) => void;
+}
+
+const CardComponent = React.memo<CardComponentProps>(({
+  card,
+  onDragStart,
+  isFocused,
   isSelected,
   onClick,
   isPending,
   onDelete
 }) => {
-  const priorityColors = {
+  const priorityColors: Record<Priority, string> = {
     high: 'border-red-500',
     medium: 'border-yellow-500',
     low: 'border-green-500'
   };
-  
+
   const pending = isPending?.(card.id);
   
   const cardClassName = useMemo(() => {
@@ -173,16 +197,34 @@ const Card = React.memo(({
   );
 });
 
-Card.displayName = 'Card';
+CardComponent.displayName = 'CardComponent';
 
 // ============================================
 // TODO #5: OPTIMIZED COLUMN COMPONENT
 // ============================================
-const Column = React.memo(({ 
-  column, 
-  cards, 
-  onDragOver, 
-  onDrop, 
+interface ColumnComponentProps {
+  column: ColumnType;
+  cards: Card[];
+  onDragOver: (e: React.DragEvent<HTMLDivElement>, columnId: string) => void;
+  onDrop: (e: React.DragEvent<HTMLDivElement>, columnId: string) => void;
+  isDraggedOver: boolean;
+  onCardDragStart: (card: Card) => void;
+  focusedCard: FocusedCard | null;
+  selectedCard: FocusedCard | null;
+  onCardClick: (cardId: string) => void;
+  isPending?: (cardId: string) => boolean;
+  onStartAddCard: (columnId: string) => void;
+  onSubmitNewCard: (columnId: string, card: Card) => void;
+  isAddingCard: boolean;
+  onCancelAdd: () => void;
+  onDeleteCard: (cardId: string) => void;
+}
+
+const ColumnComponent = React.memo<ColumnComponentProps>(({
+  column,
+  cards,
+  onDragOver,
+  onDrop,
   isDraggedOver,
   onCardDragStart,
   focusedCard,
@@ -197,7 +239,7 @@ const Column = React.memo(({
 }) => {
   const cardElements = useMemo(() => {
     return cards.map(card => (
-      <Card 
+      <CardComponent 
         key={card.id} 
         card={card}
         onDragStart={onCardDragStart}
@@ -262,12 +304,12 @@ const Column = React.memo(({
   );
 });
 
-Column.displayName = 'Column';
+ColumnComponent.displayName = 'ColumnComponent';
 
 // ============================================
 // INITIAL STATE
 // ============================================
-const initialState = {
+const initialState: KanbanState = {
   columns: {
     'todo': { id: 'todo', title: 'To Do', cardIds: ['card-1', 'card-2'] },
     'in-progress': { id: 'in-progress', title: 'In Progress', cardIds: ['card-3'] },
@@ -361,7 +403,7 @@ function KanbanBoard() {
         {/* Kanban Columns */}
         <div className="flex gap-6 overflow-x-auto pb-4">
           {columns.map(({ column, cards, columnId }) => (
-            <Column
+            <ColumnComponent
               key={column.id}
               column={column}
               cards={cards}

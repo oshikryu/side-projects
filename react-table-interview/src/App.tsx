@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import DataTable from './DataTable';
 import KanbanBoard from './KanbanBoard';
 
+type QuestionType = 'table' | 'kanban';
+
 function App() {
-  const [activeQuestion, setActiveQuestion] = useState('table');
+  const [activeQuestion, setActiveQuestion] = useState<QuestionType>('table');
 
   return (
     <div className="min-h-screen bg-gray-50">

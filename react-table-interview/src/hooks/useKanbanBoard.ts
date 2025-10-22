@@ -1,9 +1,47 @@
-import { useState, useReducer, useCallback, useRef, useMemo, useEffect } from 'react';
+import { useState, useReducer, useCallback, useRef, useMemo, useEffect, Reducer } from 'react';
+
+// ============================================
+// TYPE DEFINITIONS
+// ============================================
+export type Priority = 'low' | 'medium' | 'high';
+
+export interface Card {
+  id: string;
+  title: string;
+  description: string;
+  priority: Priority;
+}
+
+export interface Column {
+  id: string;
+  title: string;
+  cardIds: string[];
+}
+
+export interface KanbanState {
+  columns: Record<string, Column>;
+  cards: Record<string, Card>;
+  columnOrder: string[];
+  history: KanbanState[];
+  historyIndex: number;
+}
+
+export interface FocusedCard {
+  cardId: string;
+  columnId: string;
+}
+
+type KanbanAction =
+  | { type: 'MOVE_CARD'; payload: { cardId: string; fromColumnId: string; toColumnId: string; toPosition: number } }
+  | { type: 'ADD_CARD'; payload: { columnId: string; card: Card } }
+  | { type: 'DELETE_CARD'; payload: { cardId: string; columnId: string } }
+  | { type: 'UNDO' }
+  | { type: 'REDO' };
 
 // ============================================
 // KANBAN REDUCER
 // ============================================
-function kanbanReducer(state, action) {
+const kanbanReducer: Reducer<KanbanState, KanbanAction> = (state, action) => {
   switch (action.type) {
     case 'MOVE_CARD': {
       const { cardId, fromColumnId, toColumnId, toPosition } = action.payload;
@@ -114,21 +152,26 @@ function kanbanReducer(state, action) {
     default:
       return state;
   }
-}
+};
 
 // ============================================
 // DRAG AND DROP HOOK
 // ============================================
-function useDragAndDrop(dispatch) {
-  const [draggedItem, setDraggedItem] = useState(null);
-  const [dragOverColumn, setDragOverColumn] = useState(null);
-  const [dragOverPosition, setDragOverPosition] = useState(null);
+interface DraggedItem {
+  card: Card;
+  sourceColumnId: string;
+}
 
-  const handleDragStart = useCallback((card, sourceColumnId) => {
+function useDragAndDrop(dispatch: React.Dispatch<KanbanAction>) {
+  const [draggedItem, setDraggedItem] = useState<DraggedItem | null>(null);
+  const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
+  const [dragOverPosition, setDragOverPosition] = useState<number | null>(null);
+
+  const handleDragStart = useCallback((card: Card, sourceColumnId: string) => {
     setDraggedItem({ card, sourceColumnId });
   }, []);
 
-  const handleDragOver = useCallback((e, columnId) => {
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>, columnId: string) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -154,7 +197,7 @@ function useDragAndDrop(dispatch) {
     setDragOverPosition(insertPosition);
   }, []);
 
-  const handleDrop = useCallback((e, targetColumnId) => {
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>, targetColumnId: string) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -204,11 +247,11 @@ function useDragAndDrop(dispatch) {
 // ============================================
 // KEYBOARD NAVIGATION HOOK
 // ============================================
-function useKeyboardNavigation(state, dispatch) {
-  const [focusedCard, setFocusedCard] = useState(null);
-  const [selectedCard, setSelectedCard] = useState(null);
+function useKeyboardNavigation(state: KanbanState, dispatch: React.Dispatch<KanbanAction>) {
+  const [focusedCard, setFocusedCard] = useState<FocusedCard | null>(null);
+  const [selectedCard, setSelectedCard] = useState<FocusedCard | null>(null);
 
-  const handleKeyDown = useCallback((e) => {
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (!focusedCard) return;
 
     const { cardId, columnId } = focusedCard;
@@ -378,11 +421,18 @@ function useKeyboardNavigation(state, dispatch) {
 // ============================================
 // OPTIMISTIC UPDATES HOOK
 // ============================================
-function useOptimisticUpdates(dispatch) {
-  const pendingUpdates = useRef(new Map());
-  const [error, setError] = useState(null);
+interface PendingUpdate {
+  cardId: string;
+  fromColumnId: string;
+  toColumnId: string;
+  position: number;
+}
 
-  const apiMoveCard = useCallback(async (cardId, fromColumnId, toColumnId, position) => {
+function useOptimisticUpdates(dispatch: React.Dispatch<KanbanAction>) {
+  const pendingUpdates = useRef(new Map<string, PendingUpdate>());
+  const [error, setError] = useState<string | null>(null);
+
+  const apiMoveCard = useCallback(async (cardId: string, fromColumnId: string, toColumnId: string, position: number) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     if (Math.random() < 0.1) {
@@ -392,7 +442,7 @@ function useOptimisticUpdates(dispatch) {
     return { success: true };
   }, []);
 
-  const optimisticMove = useCallback(async (cardId, fromColumnId, toColumnId, position) => {
+  const optimisticMove = useCallback(async (cardId: string, fromColumnId: string, toColumnId: string, position: number) => {
     const updateId = `${cardId}-${Date.now()}`;
     const rollbackData = { cardId, fromColumnId, toColumnId, position };
     pendingUpdates.current.set(updateId, rollbackData);
@@ -430,7 +480,7 @@ function useOptimisticUpdates(dispatch) {
     }
   }, [dispatch, apiMoveCard]);
 
-  const isPending = useCallback((cardId) => {
+  const isPending = useCallback((cardId: string) => {
     for (const [, data] of pendingUpdates.current) {
       if (data.cardId === cardId) return true;
     }
@@ -448,9 +498,15 @@ function useOptimisticUpdates(dispatch) {
 // ============================================
 // MAIN KANBAN HOOK
 // ============================================
-export function useKanbanBoard(initialState) {
+export interface ColumnWithCards {
+  column: Column;
+  cards: Card[];
+  columnId: string;
+}
+
+export function useKanbanBoard(initialState: KanbanState) {
   const [state, dispatch] = useReducer(kanbanReducer, initialState);
-  const [addingCardToColumn, setAddingCardToColumn] = useState(null);
+  const [addingCardToColumn, setAddingCardToColumn] = useState<string | null>(null);
 
   // Initialize custom hooks
   const { optimisticMove, isPending, error, setError } = useOptimisticUpdates(dispatch);
@@ -478,7 +534,7 @@ export function useKanbanBoard(initialState) {
   }, [handleKeyDown]);
 
   // Handle drop with optimistic updates
-  const handleDrop = useCallback((e, targetColumnId) => {
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>, targetColumnId: string) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -505,7 +561,7 @@ export function useKanbanBoard(initialState) {
   }, []);
 
   // Card addition handlers
-  const handleShowAddCard = useCallback((columnId) => {
+  const handleShowAddCard = useCallback((columnId: string) => {
     setAddingCardToColumn(columnId);
   }, []);
 
@@ -513,7 +569,7 @@ export function useKanbanBoard(initialState) {
     setAddingCardToColumn(null);
   }, []);
 
-  const handleSubmitNewCard = useCallback((columnId, cardData) => {
+  const handleSubmitNewCard = useCallback((columnId: string, cardData: Card) => {
     dispatch({
       type: 'ADD_CARD',
       payload: { columnId, card: cardData }
@@ -523,7 +579,7 @@ export function useKanbanBoard(initialState) {
   }, [setFocusedCard]);
 
   // Card deletion handler
-  const handleDeleteCard = useCallback((columnId, cardId) => {
+  const handleDeleteCard = useCallback((columnId: string, cardId: string) => {
     dispatch({
       type: 'DELETE_CARD',
       payload: { cardId, columnId }
@@ -531,17 +587,17 @@ export function useKanbanBoard(initialState) {
   }, []);
 
   // Card click handler
-  const handleCardClick = useCallback((columnId, cardId) => {
+  const handleCardClick = useCallback((columnId: string, cardId: string) => {
     setFocusedCard({ cardId, columnId });
   }, [setFocusedCard]);
 
   // Create drag start handler for a specific column
-  const createCardDragStartHandler = useCallback((columnId) => {
-    return (card) => handleDragStart(card, columnId);
+  const createCardDragStartHandler = useCallback((columnId: string) => {
+    return (card: Card) => handleDragStart(card, columnId);
   }, [handleDragStart]);
 
   // Compute columns with cards
-  const columns = useMemo(() => {
+  const columns = useMemo<ColumnWithCards[]>(() => {
     return state.columnOrder.map(columnId => {
       const column = state.columns[columnId];
       const cards = column.cardIds.map(cardId => state.cards[cardId]);
