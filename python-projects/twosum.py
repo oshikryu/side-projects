@@ -43,4 +43,17 @@ def two_sum(nums: List[int], target: int) -> List[int]:
     return []
     
 # debug your code below
-print(two_sum([2, 11, 15, 7], 9))
+#  print(two_sum([2, 11, 15, 7], 9))
+
+
+def twoSum(nums, target):
+    hash = {}
+    for idx, n in enumerate(nums):
+        complement = target - n
+        if complement in hash:
+            return [hash[complement], idx]
+        else:
+            hash[n] = idx
+    return []
+
+print(twoSum([2,7,11,15], 9))
