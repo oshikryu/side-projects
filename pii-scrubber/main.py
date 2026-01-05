@@ -52,53 +52,52 @@ def transform_value(key, value, list_key):
      if type is list or dict, recursive call
 """
 def scrub(json_input, sensitive_fields, list_key=None):
-    total_json = {}
-
     if type(json_input) == dict:
+        total_json = {}
         for key in json_input.keys():
-            _scrubbed_value = None
             _value = json_input[key]
 
-            # specify default
-            scrubbed_value = _value
-
             if type(_value) == dict:
-                _scrubbed_value = scrub(_value, sensitive_fields, key)
-                total_json[key] = scrubbed_value
+                # Recursively scrub nested dict
+                scrubbed_value = scrub(_value, sensitive_fields, key)
             elif type(_value) == list:
-                _scrubbed_value = scrub(_value, sensitive_fields, key)
-                _scrubbed_value = _scrubbed_value[key]
-
-            if key in sensitive_fields or \
-                    _scrubbed_value is not None or \
-                    list_key in sensitive_fields:
-                if _scrubbed_value:
-                    scrubbed_value = _scrubbed_value
-                else:
-                    scrubbed_value = transform_value(key, json_input[key], list_key)
+                # Recursively scrub list
+                scrubbed_value = scrub(_value, sensitive_fields, key)
+            elif key in sensitive_fields or list_key in sensitive_fields:
+                # Transform sensitive fields
+                scrubbed_value = transform_value(key, _value, list_key)
+            else:
+                # Keep non-sensitive values as-is
+                scrubbed_value = _value
 
             total_json[key] = scrubbed_value
 
+        return total_json
+
     elif type(json_input) == list:
         new_list = []
-        scrubbed_value = []
         for _value in json_input:
             if type(_value) == dict:
+                # Recursively scrub dict within list
                 scrubbed_value = scrub(_value, sensitive_fields, list_key)
                 new_list.append(scrubbed_value)
             elif type(_value) == list:
+                # Recursively scrub nested list
                 scrubbed_value = scrub(_value, sensitive_fields, list_key)
                 new_list.append(scrubbed_value)
-            else:
-                new_list.append(_value)
-
-            if list_key in sensitive_fields:
+            elif list_key in sensitive_fields:
+                # Transform values in sensitive list
                 new_val = transform_value(list_key, _value, list_key)
                 new_list.append(new_val)
+            else:
+                # Keep non-sensitive values as-is
+                new_list.append(_value)
 
-        total_json[list_key] = new_list
+        return new_list
 
-    return total_json
+    else:
+        # Handle primitive types
+        return json_input
 
 
 def write_to_output(scrubbed: dict):
