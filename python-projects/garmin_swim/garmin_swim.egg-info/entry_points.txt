@@ -1,0 +1,2 @@
+[console_scripts]
+garmin-swim = main:main

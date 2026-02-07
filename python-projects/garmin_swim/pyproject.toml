@@ -1,0 +1,9 @@
+[project]
+name = "garmin-swim"
+version = "0.1.0"
+description = "Retrieve and summarize open water swim activities from Garmin Connect"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+garmin-swim = "main:main"

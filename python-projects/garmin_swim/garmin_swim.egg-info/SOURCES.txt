@@ -1,0 +1,9 @@
+README.md
+main.py
+pyproject.toml
+garmin_swim.egg-info/PKG-INFO
+garmin_swim.egg-info/SOURCES.txt
+garmin_swim.egg-info/dependency_links.txt
+garmin_swim.egg-info/entry_points.txt
+garmin_swim.egg-info/requires.txt
+garmin_swim.egg-info/top_level.txt
