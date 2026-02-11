@@ -1,1 +1,0 @@
-HR.appController.addTemplate("backbone/templates/recruit/question-project",function(obj){{var __p="";Array.prototype.join}with(obj||{})__p+='<div id="editor" class="codeshell mlT mlB"></div>\n<div class="clear"></div>\n<div id="runstatus"></div>\n</iframe>\n';return __p});
