@@ -3,6 +3,7 @@
 import argparse
 import csv
 import math
+import webbrowser
 from datetime import datetime, timedelta
 from functools import reduce
 
@@ -163,6 +164,8 @@ def main():
         help="Date range window in days for distance summation (default: 7)",
     )
     args = parser.parse_args()
+
+    webbrowser.open("https://connect.garmin.com/app/activities?activityType=swimming")
 
     activities = load_activities_csv(args.file)
 
