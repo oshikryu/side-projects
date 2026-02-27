@@ -13,16 +13,18 @@ interface Query {
 }
 
 
-// const queryToPatientMap = {
-//   minDateOfBirth: 'dateOfBirth',
-// }
+type FilterPredicate<K extends keyof Query> = (patient: Patient, value: NonNullable<Query[K]>) => boolean;
+
+const filterRegistry: { [K in keyof Query]?: FilterPredicate<K> } = {
+  id: (patient, value) => patient.id === value,
+  name: (patient, value) => patient.name === value,
+  address: (patient, value) => patient.address === value,
+  minDateOfBirth: (patient, value) => patient.dateOfBirth >= value,
+};
 
 // when this is empty, all test cases are run
 const TEST_CASES_TO_RUN: number[] = [];
 
-/*
-- query, id, name, and id + name, none
-*/
 class PatientDatabase {
   private patients: Patient[] = [];
 
@@ -30,33 +32,20 @@ class PatientDatabase {
     this.patients.push(patient);
   }
 
-  public filterHelper(params: Query): Patient[] {
-    let patientCopy =  this.patients.slice();
+  public query(params: Query): Patient[] {
+    const keys = Object.keys(params) as (keyof Query)[];
+    const activeFilters = keys.filter(k => params[k] != null && filterRegistry[k] != null);
 
-    if (params.minDateOfBirth != null) {
-      patientCopy = patientCopy.filter((pat: Patient) => {
-        return pat.dateOfBirth >= params.minDateOfBirth!; 
-      })
-    }
-
-    delete params['minDateOfBirth']
-    Object.keys(params).forEach(key => {
-      if (params[key as keyof Query] != null) {
-        patientCopy = patientCopy.filter((pat: Patient) => {
-          return pat[key as keyof Patient] == params[key as keyof Query] 
-        })
-      }
-    })
-    
-    return patientCopy;
-  }
-
-  public query({ id, name, address, minDateOfBirth }: Query): Patient[] {
-    if (id != null || name != null || address != null || minDateOfBirth != null) {
-      return this.filterHelper({id, name, address, minDateOfBirth})
-    } else {
+    if (activeFilters.length === 0) {
       return this.patients;
     }
+
+    return this.patients.filter(patient =>
+      activeFilters.every(key => {
+        const predicate = filterRegistry[key]!;
+        return (predicate as FilterPredicate<typeof key>)(patient, params[key]!);
+      })
+    );
   }
 }
 
